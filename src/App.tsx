@@ -3,13 +3,19 @@ import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 
+type Name = {
+  id: string,
+  name: string
+}
+
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
+  const [names, setNames] = useState<Name[]>([]);
   const [name, setName] = useState("");
 
   async function greet() {
     // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
+    const names_returned = await invoke("add_name", { name }).then((r)=>JSON.parse(r as string) as Name[]);
+    setNames(names_returned)
   }
 
   return (
@@ -43,7 +49,11 @@ function App() {
         />
         <button type="submit">Greet</button>
       </form>
-      <p>{greetMsg}</p>
+      {
+        names.map((name) => (
+          <p>{name.name}</p>
+        ))
+      }
     </main>
   );
 }
